@@ -10,6 +10,9 @@ const MARQUEE_FONTS: { family: string; axis?: string; style?: CSSProperties }[] 
   { family: 'STIX Two Text', axis: 'ital,wght@1,700', style: { fontStyle: 'italic', fontWeight: 700 } },
   { family: 'Great Vibes', style: { fontSize: '1.3em', letterSpacing: 0 } },
 ]
+/** Every take gets the next colour, independently of its font. */
+const MARQUEE_COLORS = 6
+
 /** Loads only the glyphs the ticker needs (`text=`), so the fonts cost a few kilobytes. */
 function useMarqueeFonts(text: string) {
   useEffect(() => {
@@ -55,11 +58,11 @@ export function Marquee({ sentences, to, className }: { sentences: string[][]; t
                       return (
                         <span
                           key={take}
-                          className={`marquee-take marquee-font-${fontIndex}`}
+                          className={`marquee-take take-${take % MARQUEE_COLORS} marquee-font-${fontIndex}`}
                           style={{ '--t': take, ...font.style, fontFamily: `'${font.family}', var(--font-display)` } as CSSProperties}
                         >
                           {words.map((w) => (
-                            <span key={w.index} className="marquee-word">
+                            <span key={w.index} className="marquee-word" style={{ '--i': w.index, '--tilt': `${((w.index * 37) % 7) - 3}deg` } as CSSProperties}>
                               {w.text}
                             </span>
                           ))}
