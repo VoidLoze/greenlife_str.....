@@ -78,6 +78,8 @@ export interface GiftSet {
   id: string
   image: string
   title: string
+  /** Tenge. */
+  price: number
   groups: { title?: string; items: GiftItem[] }[]
   footer?: string
 }
@@ -87,6 +89,7 @@ export const GIFT_SETS: GiftSet[] = [
     id: 'beauty',
     image: '/img/gifts/gift-set-1.jpg',
     title: '💚 Всё необходимое для вашей красоты в одном наборе!',
+    price: 50000,
     groups: [
       {
         items: [
@@ -105,6 +108,7 @@ export const GIFT_SETS: GiftSet[] = [
     id: 'body-hair',
     image: '/img/gifts/gift-set-2.jpg',
     title: '🌸 Набор для комплексного ухода за телом и волосами',
+    price: 138000,
     groups: [
       {
         items: [
@@ -125,6 +129,7 @@ export const GIFT_SETS: GiftSet[] = [
     id: 'beauty-home',
     image: '/img/gifts/gift-set-3.jpg',
     title: '✨ Набор красоты и товаров для дома Greenleaf',
+    price: 188000,
     groups: [
       {
         title: '🌸 Швейцарская 6-этапная уходовая косметика с бифидодрожжами:',

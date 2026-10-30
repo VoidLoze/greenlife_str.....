@@ -1491,7 +1491,7 @@ a.brand:focus-visible .brand-plate { box-shadow: var(--focus-ring); }
   line-height: 1.65;
 }
 .partner-intro p { margin: 0; }
-.partner-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; max-width: 900px; margin: 0 auto; }
+.partner-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; max-width: 900px; margin: 0 auto; scroll-margin-top: calc(var(--header-h) + 24px); }
 
 .partner-card {
   position: relative;
@@ -1956,6 +1956,16 @@ a.brand:focus-visible .brand-plate { box-shadow: var(--focus-ring); }
 }
 .gift-body { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 12px; }
 .gift-body h3 { font-family: var(--font-body); font-size: 1.05rem; font-weight: 800; line-height: 1.35; }
+.gift-price {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1.1;
+  background: linear-gradient(100deg, #b98a3c, #f6dc9b 45%, #b98a3c);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 .gift-group-title { margin: 0; font-size: 0.86rem; font-weight: 800; color: var(--gold-soft); }
 .gift-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .gift-list.compact { grid-template-columns: 1fr 1fr; gap: 6px; }
@@ -1964,6 +1974,69 @@ a.brand:focus-visible .brand-plate { box-shadow: var(--focus-ring); }
 .gift-list small { display: block; margin-top: 2px; font-weight: 500; font-size: 0.8rem; color: var(--muted-2); }
 .gift-icon { flex: none; width: 22px; text-align: center; }
 .gift-footer { margin: 4px 0 0; padding-top: 12px; border-top: 1px dashed var(--line-strong); font-weight: 700; color: var(--gold-soft); font-size: 0.9rem; }
+
+.gift-only-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 680px;
+  margin-top: 8px;
+  padding: 14px 18px;
+  border: 2px solid var(--gold);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(208, 178, 119, 0.24), rgba(208, 178, 119, 0.08));
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
+  text-align: left;
+}
+.gift-only-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--gold-gradient);
+  font-size: 1.3rem;
+}
+.gift-only-note strong { display: block; font-size: 1.05rem; font-weight: 800; color: var(--gold-soft); line-height: 1.25; }
+.gift-only-note p { margin: 4px 0 0; font-size: 0.86rem; line-height: 1.45; color: var(--ink); }
+.gift-only-link {
+  margin-top: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--gold-soft);
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.gift-card-only {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(6, 40, 29, 0.88);
+  border: 1px solid var(--gold);
+  color: var(--gold-soft);
+  font-size: 0.72rem;
+  font-weight: 800;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+.gift-price-row { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; }
+.gift-price-row small { font-size: 0.8rem; font-weight: 700; color: var(--gold-soft); }
+.gift-only-note.pulse { animation: gift-note-pulse 1.2s ease 0.5s 2; }
+@keyframes gift-note-pulse {
+  50% { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(208, 178, 119, 0.28); }
+}
+.gift-choose { align-self: stretch; margin-top: 4px; }
+@media (prefers-reduced-motion: reduce) { .gift-only-note.pulse { animation: none; } }
 
 .gift-section + .delivery-note.card { margin-top: 28px; max-width: 1200px; }
 
@@ -2206,6 +2279,13 @@ a.brand:focus-visible .brand-plate { box-shadow: var(--focus-ring); }
   .gift-section-head { align-items: flex-start; gap: 4px; margin-bottom: 10px; text-align: left; }
   .gift-section-head h2 { font-size: 1.6rem; }
   .gift-section-head p { font-size: 0.82rem; }
+  .gift-section-head .gift-only-note { gap: 10px; margin-top: 8px; padding: 12px; border-radius: 16px; }
+  .gift-only-icon { width: 36px; height: 36px; border-radius: 10px; font-size: 1.1rem; }
+  .gift-only-note strong { font-size: 0.95rem; }
+  .gift-only-note p { font-size: 0.8rem; }
+  .gift-card-only { right: 8px; bottom: 8px; padding: 4px 8px; font-size: 0.64rem; }
+  .gift-price-row small { font-size: 0.74rem; }
+  .gift-choose { min-height: 46px; border-radius: 14px; font-size: 0.92rem; }
   .gift-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
   .gift-tab {
     display: flex;
@@ -2226,6 +2306,9 @@ a.brand:focus-visible .brand-plate { box-shadow: var(--focus-ring); }
   .gift-tab.active { border-color: var(--gold); color: #2b2117; box-shadow: 0 10px 24px rgba(208, 178, 119, 0.28); transform: translateY(-2px); }
   .gift-tab.active img { filter: none; }
   .gift-tab.active span { background: var(--gold-gradient); }
+  .gift-tab-price { display: block; margin-top: 2px; font-size: 0.72rem; letter-spacing: 0; text-transform: none; color: var(--ink); }
+  .gift-tab.active .gift-tab-price { color: #2b2117; }
+  .gift-body .gift-price { font-size: 1.35rem; }
   .gift-card { border-radius: 16px; }
   .gift-card .gift-visual { aspect-ratio: 16 / 9; }
   .gift-number { left: 8px; bottom: 8px; padding: 4px 10px; font-size: 0.64rem; }
@@ -2446,9 +2529,10 @@ a.brand:focus-visible .brand-plate { box-shadow: var(--focus-ring); }
   .card-promo {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 128px;
+    grid-template-columns: minmax(0, 1fr) clamp(112px, 42%, 168px);
     align-items: center;
-    gap: 6px;
+    gap: 10px;
+    padding-right: 12px;
     border-radius: 24px;
     overflow: hidden;
     border: 1px solid rgba(208, 178, 119, 0.55);
@@ -2491,7 +2575,14 @@ a.brand:focus-visible .brand-plate { box-shadow: var(--focus-ring); }
     font-size: 0.78rem;
     font-weight: 800;
   }
-  .card-promo-img { width: 128px; height: 100%; object-fit: cover; }
+  /* The card sits in the middle 65% of the photo: this frame trims only the backdrop, never the card. */
+  .card-promo-img {
+    width: 100%;
+    aspect-ratio: 1.15;
+    object-fit: cover;
+    border-radius: 16px;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
+  }
 
   /* Products, marketplace style: two compact cards per row — photo, price, name, button. */
   .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }

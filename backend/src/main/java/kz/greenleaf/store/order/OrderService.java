@@ -14,6 +14,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import kz.greenleaf.store.auth.AuthPrincipal;
 import kz.greenleaf.store.cart.CartDtos.CartWarning;
 import kz.greenleaf.store.cart.CartDtos.QuoteLine;
@@ -185,7 +187,7 @@ public class OrderService {
                 .map(i -> i.getProductName() + " × " + i.getQuantity() + " = " + money(i.getLineTotal()) + " ₸")
                 .toList();
         String delivery = order.getDeliveryMethod() == DeliveryMethod.PICKUP
-                ? "Самовывоз (" + s.address() + ")"
+                ? "Самовывоз" + inParens(pickupPlace(s))
                 : "Доставка: " + order.getCity() + ", " + order.getAddress()
                         + (order.getDeliveryFee().signum() > 0 ? " (+" + money(order.getDeliveryFee()) + " ₸)" : " (бесплатно)");
         return new OrderPlacedEvent(order.getId(), order.getNumber(), order.getCustomerName(), order.getPhone(), delivery,
@@ -251,7 +253,7 @@ public class OrderService {
         text.append("\n\nИмя: ").append(order.getCustomerName());
         text.append("\nТелефон: ").append(order.getPhone());
         text.append("\nПолучение: ").append(order.getDeliveryMethod() == DeliveryMethod.PICKUP
-                ? "самовывоз (" + store.address() + ")"
+                ? "самовывоз" + inParens(pickupPlace(store))
                 : "доставка — " + order.getCity() + ", " + order.getAddress());
         text.append("\nОплата: ").append(paymentLabel(order.getPaymentMethod()));
         if (order.getComment() != null) {
@@ -259,6 +261,16 @@ public class OrderService {
         }
         return "https://wa.me/" + store.whatsapp() + "?text="
                 + URLEncoder.encode(text.toString(), StandardCharsets.UTF_8).replace("+", "%20");
+    }
+
+    private static String pickupPlace(StoreSettings s) {
+        return Stream.of(s.city(), s.address())
+                .filter(v -> v != null && !v.isBlank())
+                .collect(Collectors.joining(", "));
+    }
+
+    private static String inParens(String text) {
+        return text.isEmpty() ? "" : " (" + text + ")";
     }
 
     static String paymentLabel(PaymentMethod method) {

@@ -7,7 +7,7 @@ import { Lightbox } from '@/components/Lightbox'
 import { CardGiftBanner, DeliveryNote } from '@/components/Promo'
 import { CARD_BENEFITS, CARD_GIFT_CALL, GIFT_SETS, type GiftSet } from '@/content/promo'
 import { useT } from '@/i18n'
-import { whatsappLink } from '@/lib/format'
+import { money, whatsappLink } from '@/lib/format'
 import { useDocumentTitle, useIsPhone, useSettings } from '@/lib/hooks'
 import { useAuthStore } from '@/store/auth'
 
@@ -21,6 +21,8 @@ interface PartnerOption {
   name: [string, string]
   summary: [string, string]
   accents: [string[], string[]]
+  /** The discount card: only it comes with a gift set, so its button leads to the sets instead of WhatsApp. */
+  withGift?: boolean
 }
 
 const OPTIONS: PartnerOption[] = [
@@ -39,6 +41,7 @@ const OPTIONS: PartnerOption[] = [
       ['Дополнительный товар', 'Более выгодные условия', 'Подходит для расширенного участия'],
       ['Қосымша тауар', 'Көбірек тиімді шарттар', 'Кеңейтілген қатысуға жарайды'],
     ],
+    withGift: true,
   },
   {
     id: 'full-cost',
@@ -63,13 +66,13 @@ function partnerIntro(lang: 'ru' | 'kk', discount: number | undefined) {
     return [
       'Greenleaf серіктестік бағдарламасында қатысудың екі форматы бар: карта мен қосымша тауар немесе бонустық бағдарламаға қатыспай толық бағамен сатып алу.',
       discount ? `Серіктестік баға бөлшек бағадан ${discount}% төмен — ол каталогтағы әр тауардың жанында көрсетілген.` : null,
-      'Форматты таңдаңыз — WhatsApp дайын хабарламамен ашылады.',
+      'Форматты таңдаңыз. Дисконттық картамен бірге сыйлық жиынтығын таңдайсыз — содан кейін WhatsApp дайын хабарламамен ашылады.',
     ]
   }
   return [
     'В партнёрской программе Greenleaf два формата участия: карта вместе с дополнительным товаром или покупка по полной стоимости без участия в бонусной программе.',
     discount ? `Партнёрская цена на ${discount}% ниже розничной — она указана рядом с каждым товаром в каталоге.` : null,
-    'Выберите формат — откроется WhatsApp с готовым сообщением.',
+    'Выберите формат. К дисконтной карте вы выбираете подарочный набор — после этого откроется WhatsApp с готовым сообщением.',
   ]
 }
 
@@ -195,17 +198,24 @@ function CardBenefits() {
   )
 }
 
-function GiftCard({ set, idx, onZoom }: { set: GiftSet; idx: number; onZoom: (idx: number) => void }) {
+function GiftCard({ set, idx, onZoom, href }: { set: GiftSet; idx: number; onZoom: (idx: number) => void; href: string }) {
   const { t } = useT()
   return (
     <article className="gift-card">
       <button type="button" className="gift-visual" onClick={() => onZoom(idx)} aria-label={`Увеличить фото: ${set.title}`}>
         <img src={set.image} alt={set.title} loading="lazy" />
+        <span className="gift-card-only">
+          <GiftIcon size={13} /> {t.giftWithCardBadge}
+        </span>
         <span className="gift-number">
           {t.set} {idx + 1}
         </span>
       </button>
       <div className="gift-body">
+        <p className="gift-price-row">
+          <span className="gift-price">{money(set.price)}</span>
+          <small>{t.giftPriceNote}</small>
+        </p>
         <h3>{set.title}</h3>
         {set.groups.map((group, g) => (
           <div key={g} className="gift-group">
@@ -226,13 +236,16 @@ function GiftCard({ set, idx, onZoom }: { set: GiftSet; idx: number; onZoom: (id
           </div>
         ))}
         {set.footer && <p className="gift-footer">{set.footer}</p>}
+        <a className="btn btn-whatsapp gift-choose" href={href} target="_blank" rel="noreferrer">
+          <WhatsappIcon size={18} /> {t.pickThisSet}
+        </a>
       </div>
     </article>
   )
 }
 
 /** On a phone the three sets sit side by side as photo tabs, with the chosen one's contents below. */
-function GiftSets() {
+function GiftSets({ hrefFor, pulse }: { hrefFor: (set: GiftSet, idx: number) => string; pulse: number }) {
   const { t } = useT()
   const phone = useIsPhone()
   const [open, setOpen] = useState<number | null>(null)
@@ -262,6 +275,22 @@ function GiftSets() {
         </span>
         <h2 id="gifts-title">Подарок от компании</h2>
         <p className="muted">Полный ассортимент товара, равный стоимости дисконтной карты</p>
+        <div key={pulse} className={clsx('gift-only-note', pulse > 0 && 'pulse')}>
+          <span className="gift-only-icon" aria-hidden="true">
+            💳
+          </span>
+          <div>
+            <strong>{t.giftOnlyTitle}</strong>
+            <p>{t.giftOnlyText}</p>
+            <button
+              type="button"
+              className="gift-only-link"
+              onClick={() => document.getElementById('formats')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+            >
+              {t.seeCard}
+            </button>
+          </div>
+        </div>
       </div>
       {phone ? (
         <>
@@ -278,16 +307,17 @@ function GiftSets() {
                 <img src={set.image} alt="" loading="lazy" />
                 <span>
                   {t.set} {idx + 1}
+                  <small className="gift-tab-price">{money(set.price)}</small>
                 </span>
               </button>
             ))}
           </div>
-          <GiftCard key={picked} set={GIFT_SETS[picked]} idx={picked} onZoom={setOpen} />
+          <GiftCard key={picked} set={GIFT_SETS[picked]} idx={picked} onZoom={setOpen} href={hrefFor(GIFT_SETS[picked], picked)} />
         </>
       ) : (
         <div className="gift-grid">
           {GIFT_SETS.map((set, idx) => (
-            <GiftCard key={set.id} set={set} idx={idx} onZoom={setOpen} />
+            <GiftCard key={set.id} set={set} idx={idx} onZoom={setOpen} href={hrefFor(set, idx)} />
           ))}
         </div>
       )}
@@ -296,7 +326,7 @@ function GiftSets() {
   )
 }
 
-function PartnerCard({ option, href }: { option: PartnerOption; href: string }) {
+function PartnerCard({ option, href, onPickGift }: { option: PartnerOption; href: string; onPickGift: () => void }) {
   const { t, lang } = useT()
   const i = lang === 'kk' ? 1 : 0
   return (
@@ -316,9 +346,15 @@ function PartnerCard({ option, href }: { option: PartnerOption; href: string }) 
             <li key={a}>{a}</li>
           ))}
         </ul>
-        <a className="btn btn-whatsapp" href={href} target="_blank" rel="noreferrer">
-          <WhatsappIcon size={18} /> {t.choose}
-        </a>
+        {option.withGift ? (
+          <button type="button" className="btn btn-gold" onClick={onPickGift}>
+            <GiftIcon size={18} /> {t.pickGift} ↓
+          </button>
+        ) : (
+          <a className="btn btn-whatsapp" href={href} target="_blank" rel="noreferrer">
+            <WhatsappIcon size={18} /> {t.choose}
+          </a>
+        )}
       </div>
     </article>
   )
@@ -416,6 +452,23 @@ export default function PartnerPage() {
     return whatsappLink(settings.whatsapp, `Здравствуйте! Хочу оформить партнёрство: «${option.name[0]}».${who}`)
   }
 
+  const [giftPulse, setGiftPulse] = useState(0)
+  const pickGift = () => {
+    setGiftPulse((n) => n + 1)
+    document.getElementById('gifts')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+  const giftHref = (set: GiftSet, idx: number) => {
+    if (!settings?.whatsapp) return '#'
+    const card = OPTIONS.find((o) => o.withGift) ?? OPTIONS[0]
+    const title = set.title.replace(/^[^\p{L}]+/u, '')
+    const who = user ? ` Мой аккаунт: ${user.email}.` : ''
+    return whatsappLink(
+      settings.whatsapp,
+      `Здравствуйте! Хочу приобрести дисконтную карту («${card.name[0]}»). ` +
+        `В подарок выбираю набор ${idx + 1}: «${title}» — ${money(set.price)}.${who}`,
+    )
+  }
+
   return (
     <>
       <div className="partner-hero">
@@ -455,17 +508,17 @@ export default function PartnerPage() {
               </button>
             ))}
           </div>
-          <PartnerCard key={picked} option={OPTIONS[picked]} href={contact(OPTIONS[picked])} />
+          <PartnerCard key={picked} option={OPTIONS[picked]} href={contact(OPTIONS[picked])} onPickGift={pickGift} />
         </div>
       ) : (
-        <div className="partner-grid">
+        <div id="formats" className="partner-grid">
           {OPTIONS.map((option) => (
-            <PartnerCard key={option.id} option={option} href={contact(option)} />
+            <PartnerCard key={option.id} option={option} href={contact(option)} onPickGift={pickGift} />
           ))}
         </div>
       )}
 
-      <GiftSets />
+      <GiftSets hrefFor={giftHref} pulse={giftPulse} />
 
       <DeliveryNote />
 

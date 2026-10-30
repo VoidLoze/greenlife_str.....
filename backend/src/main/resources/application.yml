@@ -81,7 +81,7 @@ app:
     telegram-url: ${STORE_TELEGRAM_URL:https://t.me/+5NLkt7yDuxJlZTUy}
     instagram-url: ${STORE_INSTAGRAM_URL:}
     city: ${STORE_CITY:г. Алматы}
-    address: ${STORE_ADDRESS:ул. Бонапарта 5}
+    address: ${STORE_ADDRESS:}
     working-hours: ${STORE_WORKING_HOURS:Пн–Сб 10:00–19:00}
     # Default video on the home page; admins can replace it in "Настройки сайта".
     company-video-url: ${COMPANY_VIDEO_URL:https://www.youtube.com/watch?v=1g-BeW0y_TE}

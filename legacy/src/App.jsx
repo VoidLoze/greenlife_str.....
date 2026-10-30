@@ -420,7 +420,6 @@ const translations = {
   ru: {
     cart: 'Корзина',
     city: 'г. Алматы',
-    address: 'ул. Бонапарта 5',
     telegram: 'Telegram',
     catalog: 'Коллекция',
     partner: 'Партнерство',
@@ -458,7 +457,6 @@ const translations = {
   kk: {
     cart: 'Себет',
     city: 'Алматы қ.',
-    address: 'Бонапарт 5 көш.',
     telegram: 'Telegram',
     catalog: 'Жинақ',
     partner: 'Серіктестік',
@@ -630,7 +628,6 @@ function App() {
 
         <div className="contact-bar">
           <span>{t.city}</span>
-          <span>{t.address}</span>
           <a href="https://t.me/+5NLkt7yDuxJlZTUy" target="_blank" rel="noreferrer">
             {t.telegram}
           </a>
