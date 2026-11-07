@@ -75,6 +75,8 @@ public class SeoPages {
         switch (path) {
             case "/partner":
                 return simple("Партнёрство и скидки", "/partner");
+            case "/about":
+                return about();
             case "/privacy":
                 return simple("Политика конфиденциальности", "/privacy");
             case "/track":
@@ -164,8 +166,13 @@ public class SeoPages {
             b.append("<h2>Выбор Greenleaf</h2>");
             productLinks(b, home.featured());
         }
-        return new Page(SITE_TITLE, HOME_DESCRIPTION, origin + "/", defaultImage(), "website", false, List.of(store),
-                wrap(b));
+        // Google takes the name shown next to the site icon in results from WebSite data on the home page.
+        Map<String, Object> site = ld("WebSite");
+        site.put("name", "Greenleaf");
+        site.put("alternateName", "Greenleaf family");
+        site.put("url", origin + "/");
+        return new Page(SITE_TITLE, HOME_DESCRIPTION, origin + "/", defaultImage(), "website", false,
+                List.of(site, store), wrap(b));
     }
 
     private Page product(String rawSlug) {
@@ -302,6 +309,26 @@ public class SeoPages {
         productLinks(b, products.items());
         return new Page(name + " — Greenleaf", description, url, defaultImage(), "website", search,
                 List.of(breadcrumbList(crumbs)), wrap(b));
+    }
+
+    /** Same copy as the About page of the app (frontend/src/content/about.ts). */
+    private Page about() {
+        StringBuilder b = new StringBuilder(2048)
+                .append("<h1>Дом, в котором живёт любовь и забота</h1>")
+                .append("<p>Каждый из нас хочет, чтобы дом был местом силы. Пространством, где можно оставить суету дня ")
+                .append("за дверью, обнять близких и почувствовать полную безопасность и уют. Именно из этой философии ")
+                .append("родился наш бренд экологичных товаров для всей семьи.</p>")
+                .append("<p>Мы верим, что забота о планете начинается с заботы о тех, кто нам дорог.</p>")
+                .append("<h2>Что для нас важно и почему нам можно доверять</h2><ul>")
+                .append("<li>Абсолютная безопасность: никакой агрессивной химии, только натуральные, гипоаллергенные ")
+                .append("и биоразлагаемые компоненты, безопасные для детей и питомцев.</li>")
+                .append("<li>Эстетика в деталях: лаконичные флаконы и природные текстуры гармонично впишутся в любой интерьер.</li>")
+                .append("<li>Удовольствие от прикосновения: тонкие ароматы наполняют дом атмосферой спокойствия.</li></ul>")
+                .append("<p><a href=\"/catalog\">Каталог</a> · <a href=\"/partner\">Партнёрство и скидки</a></p>");
+        return new Page("О нас — Greenleaf",
+                "Greenleaf family — бренд экологичных товаров для всей семьи. Натуральные, гипоаллергенные и "
+                        + "биоразлагаемые компоненты, безопасные для детей и питомцев.",
+                origin + "/about", defaultImage(), "website", false, List.of(), wrap(b));
     }
 
     private Page simple(String title, String path) {

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { adminApi, type CompanyVideo, type StoreSettings, type StoreSettingsUpdate } from '@/api/admin'
+import { adminApi, type CompanyVideo, type PromoBanner, type StoreSettings, type StoreSettingsUpdate } from '@/api/admin'
 import { errorMessage } from '@/api/client'
 import { Field, PageLoader, Spinner } from '@/components/ui'
 import { VideoPlayer } from '@/components/VideoPlayer'
@@ -130,6 +130,70 @@ function CompanyVideoSettings({ video }: { video: CompanyVideo }) {
         </section>
       </aside>
     </div>
+  )
+}
+
+const almatyToday = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Almaty' })
+
+function PromoBannerSettings({ banner }: { banner: PromoBanner }) {
+  const queryClient = useQueryClient()
+  const [enabled, setEnabled] = useState(banner.enabled)
+  const [text, setText] = useState(banner.text ?? '')
+  const [until, setUntil] = useState(banner.until ?? '')
+  const dirty = enabled !== banner.enabled || text !== (banner.text ?? '') || until !== (banner.until ?? '')
+  const expired = !!banner.until && banner.until < almatyToday()
+  const textError = enabled && !text.trim() ? 'Напишите текст баннера' : undefined
+
+  const save = useMutation({
+    mutationFn: () => adminApi.savePromoBanner({ enabled, text: nullIfBlank(text), until: until || null }),
+    onSuccess: (next) => {
+      queryClient.setQueryData(['admin', 'promo-banner'], next)
+      void queryClient.invalidateQueries({ queryKey: ['settings'] })
+      toast.success(next.enabled ? 'Баннер сохранён' : 'Баннер выключен')
+    },
+    onError: (e) => toast.error(errorMessage(e)),
+  })
+
+  return (
+    <form
+      className="editor-layout"
+      onSubmit={(e) => {
+        e.preventDefault()
+        if (!textError) save.mutate()
+      }}
+    >
+      <div className="stack" style={{ gap: 16 }}>
+        <section className="panel editor-section">
+          <h3>Баннер акции</h3>
+          <p className="muted small">
+            Полоса с текстом над шапкой на всех страницах магазина. Покупатель может закрыть её крестиком. Укажите последний день — и баннер
+            выключится сам.
+          </p>
+          <label className="row" style={{ gap: 10 }}>
+            <Toggle checked={enabled} onChange={setEnabled} label="Показывать баннер" />
+            <span>Показывать баннер на сайте</span>
+          </label>
+          <Field label="Текст баннера" error={textError} hint="До 500 символов">
+            <textarea className="input" rows={3} value={text} maxLength={500} onChange={(e) => setText(e.target.value)} />
+          </Field>
+          <Field label="Последний день показа" hint="Пусто — показывать, пока не выключите">
+            <input className="input" type="date" value={until} min={almatyToday()} onChange={(e) => setUntil(e.target.value)} />
+          </Field>
+        </section>
+      </div>
+
+      <aside className="editor-side">
+        <section className="panel editor-section">
+          <h3>Сейчас на сайте</h3>
+          <span className={banner.enabled && !expired ? 'badge badge-green' : 'badge badge-gray'}>
+            {!banner.enabled ? 'Выключен' : expired ? 'Срок показа закончился' : 'Показывается'}
+          </span>
+          <button type="submit" className="btn btn-primary" disabled={save.isPending || !!textError || !dirty}>
+            {save.isPending ? <Spinner /> : dirty ? 'Сохранить баннер' : 'Сохранено'}
+          </button>
+        </section>
+      </aside>
+    </form>
   )
 }
 
@@ -363,11 +427,13 @@ export default function SettingsPage() {
   useDocumentTitle('Настройки сайта')
   const video = useQuery({ queryKey: ['admin', 'company-video'], queryFn: adminApi.companyVideo })
   const store = useQuery({ queryKey: ['admin', 'store-settings'], queryFn: adminApi.storeSettings })
+  const promo = useQuery({ queryKey: ['admin', 'promo-banner'], queryFn: adminApi.promoBanner })
 
   return (
     <>
       <AdminHead eyebrow="Витрина" title="Настройки сайта" />
       <div className="stack" style={{ gap: 28 }}>
+        {promo.isLoading || !promo.data ? <PageLoader /> : <PromoBannerSettings key={JSON.stringify(promo.data)} banner={promo.data} />}
         {store.isLoading || !store.data ? <PageLoader /> : <StoreSettingsForm key={JSON.stringify(store.data)} settings={store.data} />}
         {video.isLoading || !video.data ? <PageLoader /> : <CompanyVideoSettings video={video.data} />}
       </div>

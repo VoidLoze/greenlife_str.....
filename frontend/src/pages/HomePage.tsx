@@ -8,6 +8,7 @@ import { GiftPick } from '@/components/GiftPick'
 import { RecentlyViewed } from '@/components/SavedProducts'
 import { CardGiftBanner, DeliveryNote, Marquee } from '@/components/Promo'
 import { MARQUEE_SENTENCES, PARTNERSHIP_FORMULA } from '@/content/promo'
+import { ABOUT } from '@/content/about'
 import { HomeReels } from '@/components/HomeReels'
 import { CardPromo, CategoryStories, MobileSection } from '@/components/MobileHome'
 import { useT } from '@/i18n'
@@ -34,7 +35,7 @@ function Section({ eyebrow, title, link, products }: { eyebrow: string; title: s
 }
 
 export default function HomePage() {
-  const { t, pick } = useT()
+  const { t, pick, lang } = useT()
   const { data, isLoading } = useQuery({ queryKey: ['home'], queryFn: catalogApi.home })
   const { data: settings } = useSettings()
   const phone = useIsPhone()
@@ -66,6 +67,15 @@ export default function HomePage() {
         <DeliveryNote />
         {data && <MobileSection title={t.newest} link="/catalog?sort=newest" products={data.newest} />}
         <GiftPick />
+        <Link to="/about" className="about-teaser">
+          <span className="about-teaser-text">
+            <span className="eyebrow">{t.about}</span>
+            <strong>{ABOUT[lang === 'kk' ? 'kk' : 'ru'].title}</strong>
+          </span>
+          <span className="about-teaser-cta" aria-hidden="true">
+            →
+          </span>
+        </Link>
         <RecentlyViewed />
       </div>
     )

@@ -89,6 +89,7 @@ const REVEAL_SELECTOR = [
   '.home-entry',
   '.category-tile',
   '.story',
+  '.about-reveal',
 ].join(', ')
 /** Windows draw their own content; sliding it in would only delay the shopper. */
 const NO_REVEAL_INSIDE = '.drawer, .quickview, .modal, .lightbox'

@@ -59,6 +59,8 @@ export interface PublicSettings {
   maxQuantityPerItem: number
   companyVideoUrl: string | null
   companyVideoTitle: string | null
+  /** Text of the promo bar; null when it is switched off or its last day has passed. */
+  promoBanner: string | null
 }
 
 export interface Category {

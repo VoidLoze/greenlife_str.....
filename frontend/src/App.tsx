@@ -20,6 +20,7 @@ const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
 const AccountPage = lazy(() => import('@/pages/AccountPage'))
 const PartnerPage = lazy(() => import('@/pages/PartnerPage'))
+const AboutPage = lazy(() => import('@/pages/AboutPage'))
 
 const PrivacyPage = lazy(() => import('@/pages/PrivacyPage'))
 const FavoritesPage = lazy(() => import('@/pages/FavoritesPage'))
@@ -61,6 +62,7 @@ const router = createBrowserRouter([
           { path: 'login', element: page(<LoginPage />) },
           { path: 'register', element: page(<RegisterPage />) },
           { path: 'partner', element: page(<PartnerPage />) },
+          { path: 'about', element: page(<AboutPage />) },
           { path: 'privacy', element: page(<PrivacyPage />) },
           { path: 'favorites', element: page(<FavoritesPage />) },
           { path: 'account', element: <RequireAuth>{page(<AccountPage />)}</RequireAuth> },

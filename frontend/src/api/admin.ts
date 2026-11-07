@@ -68,6 +68,13 @@ export interface CompanyVideo {
   custom: boolean
 }
 
+export interface PromoBanner {
+  enabled: boolean
+  text: string | null
+  /** Last day of showing, YYYY-MM-DD; null — until switched off. */
+  until: string | null
+}
+
 export interface StoreSettings {
   phone: string | null
   whatsapp: string | null
@@ -306,6 +313,9 @@ export const adminApi = {
     )
   },
   resetCompanyVideo: () => data(api.delete<CompanyVideo>('/admin/settings/company-video')),
+
+  promoBanner: () => data(api.get<PromoBanner>('/admin/settings/promo-banner')),
+  savePromoBanner: (body: PromoBanner) => data(api.put<PromoBanner>('/admin/settings/promo-banner', body)),
 
   storeSettings: () => data(api.get<StoreSettings>('/admin/settings/store')),
   saveStoreSettings: (body: StoreSettingsUpdate) => data(api.put<StoreSettings>('/admin/settings/store', body)),

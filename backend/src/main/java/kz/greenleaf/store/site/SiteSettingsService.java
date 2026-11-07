@@ -2,6 +2,7 @@ package kz.greenleaf.store.site;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,11 @@ public class SiteSettingsService {
     static final String VIDEO_URL = "company_video_url";
     static final String VIDEO_TITLE = "company_video_title";
     static final String VIDEO_FILE_KEY = "company_video_file_key";
+    static final String PROMO_ENABLED = "promo_banner_enabled";
+    static final String PROMO_TEXT = "promo_banner_text";
+    static final String PROMO_UNTIL = "promo_banner_until";
+    static final String DEFAULT_PROMO_TEXT = "Подарок для первых клиентов: при оформлении любого заказа мы вложим в вашу "
+            + "посылку приятный и эстетичный комплимент для домашнего уюта от нашего бренда.";
 
     private final JdbcTemplate jdbc;
     private final AppProperties properties;
@@ -42,6 +48,38 @@ public class SiteSettingsService {
     }
 
     public record CompanyVideo(String url, String title, boolean uploaded, boolean custom) implements Serializable {
+    }
+
+    /** Announcement bar above the storefront; {@code until} is the last day it shows (Almaty time), null — no end. */
+    public record PromoBanner(boolean enabled, String text, LocalDate until) implements Serializable {
+
+        public boolean shownOn(LocalDate today) {
+            return enabled && text != null && !text.isBlank() && (until == null || !today.isAfter(until));
+        }
+    }
+
+    @Cacheable(cacheNames = CacheConfig.SITE_SETTINGS, key = "'promo-banner'")
+    @Transactional(readOnly = true)
+    public PromoBanner promoBanner() {
+        Map<String, String> values = load();
+        String until = values.get(PROMO_UNTIL);
+        return new PromoBanner("true".equals(values.get(PROMO_ENABLED)),
+                values.getOrDefault(PROMO_TEXT, DEFAULT_PROMO_TEXT),
+                until == null ? null : LocalDate.parse(until));
+    }
+
+    @CacheEvict(cacheNames = CacheConfig.SITE_SETTINGS, allEntries = true)
+    @Transactional
+    public PromoBanner setPromoBanner(boolean enabled, String text, LocalDate until) {
+        String trimmed = blankToNull(text);
+        if (enabled && trimmed == null) {
+            throw ApiException.badRequest("promo_text_required", "Напишите текст баннера");
+        }
+        put(PROMO_ENABLED, Boolean.toString(enabled));
+        put(PROMO_TEXT, trimmed);
+        put(PROMO_UNTIL, until == null ? null : until.toString());
+        // The cache is cleared after the commit, so reading it back right away could still return the old banner.
+        return new PromoBanner(enabled, trimmed == null ? DEFAULT_PROMO_TEXT : trimmed, until);
     }
 
     @Cacheable(cacheNames = CacheConfig.SITE_SETTINGS, key = "'company-video'")

@@ -67,7 +67,7 @@ public class SeoController {
         StringBuilder xml = new StringBuilder(64 * 1024)
                 .append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
                 .append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
-        for (String path : List.of("/", "/catalog", "/partner")) {
+        for (String path : List.of("/", "/catalog", "/partner", "/about")) {
             url(xml, origin + path, null);
         }
         jdbc.query("select slug from categories order by sort_order, id",

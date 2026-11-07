@@ -13,7 +13,7 @@ import { toast } from '@/store/toast'
 import { promptInstall, useInstallOption } from '@/lib/pwa'
 import { BrandLogo } from './Brand'
 import { CartDrawer } from './CartDrawer'
-import { BagIcon, CardIcon, DownloadIcon, GridIcon, HeartIcon, HomeIcon, UserIcon } from './Icons'
+import { BagIcon, CardIcon, CloseIcon, DownloadIcon, GiftIcon, GridIcon, HeartIcon, HomeIcon, UserIcon } from './Icons'
 import { ProductQuickView } from './QuickView'
 import { SearchBox } from './SearchBox'
 
@@ -111,6 +111,33 @@ function InstallButton() {
   )
 }
 
+const PROMO_DISMISSED_KEY = 'promo-banner-dismissed'
+
+/** Store-wide announcement set in the admin; closing hides this exact text until the browser tab is closed. */
+function PromoBar() {
+  const { data: settings } = useSettings()
+  const text = settings?.promoBanner
+  const [dismissed, setDismissed] = useState(() => sessionStorage.getItem(PROMO_DISMISSED_KEY))
+  if (!text || dismissed === text) return null
+  return (
+    <div className="promo-bar" role="note">
+      <GiftIcon size={18} />
+      <p>{text}</p>
+      <button
+        type="button"
+        className="promo-bar-close"
+        aria-label="Закрыть"
+        onClick={() => {
+          sessionStorage.setItem(PROMO_DISMISSED_KEY, text)
+          setDismissed(text)
+        }}
+      >
+        <CloseIcon size={16} />
+      </button>
+    </div>
+  )
+}
+
 function Header() {
   const { t } = useT()
   const lang = useLangStore((s) => s.lang)
@@ -131,6 +158,7 @@ function Header() {
           <NavLink to="/catalog">{t.catalog}</NavLink>
           <NavLink to="/partner">{t.partner}</NavLink>
           <NavLink to="/track">{t.trackOrder}</NavLink>
+          <NavLink to="/about">{t.about}</NavLink>
         </nav>
         <SearchBox />
         <div className="header-actions">
@@ -184,6 +212,7 @@ function Footer() {
           <div>
             <h4>{t.partner}</h4>
             <ul>
+              <li><Link to="/about">{t.about}</Link></li>
               <li><Link to="/partner">{t.becomePartner}</Link></li>
               <li><Link to="/track">{t.trackOrder}</Link></li>
               <li><Link to="/account">{t.account}</Link></li>
@@ -274,6 +303,7 @@ export function Layout() {
   return (
     <>
       <ScrollToTop />
+      <PromoBar />
       <Header />
       <main className="main container">
         <Outlet />

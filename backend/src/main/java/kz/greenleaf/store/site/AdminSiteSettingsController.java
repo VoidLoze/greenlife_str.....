@@ -4,7 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
 import kz.greenleaf.store.site.SiteSettingsService.CompanyVideo;
+import kz.greenleaf.store.site.SiteSettingsService.PromoBanner;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -58,5 +60,19 @@ public class AdminSiteSettingsController {
     public CompanyVideo reset() {
         settings.resetCompanyVideo();
         return settings.companyVideo();
+    }
+
+    public record PromoBannerRequest(boolean enabled, @Size(max = 500) String text, LocalDate until) {
+    }
+
+    @GetMapping("/promo-banner")
+    public PromoBanner promoBanner() {
+        return settings.promoBanner();
+    }
+
+    @PutMapping("/promo-banner")
+    @Operation(summary = "Баннер акции над витриной: включён ли, текст и последний день показа")
+    public PromoBanner setPromoBanner(@Valid @RequestBody PromoBannerRequest request) {
+        return settings.setPromoBanner(request.enabled(), request.text(), request.until());
     }
 }
